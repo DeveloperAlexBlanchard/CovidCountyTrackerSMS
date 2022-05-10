@@ -40,5 +40,5 @@ text_message = [f'\nDate: {lastUpdatedDate} \nRisk Level: {riskLevel} \nCase Rat
 message = client.messages.create(
     body= text_message,
     from_= '+19035322609',
-    to= '+14087075378'
+    to= (MY NUMBER)
 )
