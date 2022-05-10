@@ -15,3 +15,11 @@ vaccinated_percentage = county_data['metrics']['vaccinationsCompletedRatio']
 additional_dose = county_data['actuals']['vaccinationsAdditionalDose']
 additional_dose_percentage = county_data['metrics']['vaccinationsAdditionalDoseRatio']
 unvaccinated = int(population) - int(vaccinated)
+
+print(county_data)
+print(f'Weekly New Cases: {weekly_new_cases}')
+print(f'County Population: {population}')
+print(f'Unvaccinated: {unvaccinated}')
+print(f'One Dose: {one_dose}')
+print(f'Fully Vaccinated Percentage: {vaccinated_percentage}')
+print(f'Booster Shot Percentage: {additional_dose_percentage}')
