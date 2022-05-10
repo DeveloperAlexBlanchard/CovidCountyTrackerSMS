@@ -4,7 +4,7 @@ from twilio.rest import Client
 
 # Twilio Authentication
 ACCOUNT_SID = 'AC911f113cfcd849f9d099a5136a2d83eb'
-AUTH_TOKEN = '89df572676764e9f0ceebd8071e4725f'
+AUTH_TOKEN = '433716f7777cfd1f48ba62e144530d05'
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 
@@ -32,13 +32,13 @@ else:
 
 
 # SMS Text Sent to Phone
-text_message = [f'\nDate: {lastUpdatedDate} \nRisk Level: {riskLevel} \nCase Rate: {weekly_new_cases} '
-                f'\nUnvaccinated: {unvaccinated} \nFully Vaccinated: {vaccinated} \nBooster Shot: {booster_shot}']
+text_message = [f'\nDate: {lastUpdatedDate} \n\nRisk Level: {riskLevel} \nCase Rate: {weekly_new_cases} '
+                f'\n\nUnvaccinated: {unvaccinated} \nFully Vaccinated: {vaccinated} \nBooster Shot: {booster_shot}']
 
 
 # Send Covid Tracker to Phone
 message = client.messages.create(
     body= text_message,
     from_= '+19035322609',
-    to= (MY NUMBER)
+    to= "MY PHONE NUMBER"
 )
