@@ -19,9 +19,12 @@ AUTH_TOKEN = '433716f7777cfd1f48ba62e144530d05'
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 
+# Every day at 8:00 AM, Send SMS Message to Phone with Current Updated CDC Information
 now = datetime.now()
 current_time = now.strftime("%H:%M")
-if current_time == '08:00':
+print(current_time)
+if current_time == '16:21':
+# if current_time == '08:00':
 
 
     # Covid Database API
@@ -63,7 +66,7 @@ if current_time == '08:00':
                   'the number falls lower. Until then, (Company) is required to provide CDC materials (masks, hand ' \
                   'sanitizer, and gloves) to all employees that come into the office.'
     else:
-        maskMandate = 'Santa Clara County has remained under 550 daily cases, and the mask makjndate is currently not in effect until ' \
+        maskMandate = 'Santa Clara County has remained under 550 daily cases, and the mask mandate is currently not in effect until ' \
                   'the numbers start to grow. At this time, masks are not required while indoors or in large crowds.'
 
 
@@ -74,7 +77,7 @@ if current_time == '08:00':
         File.close()
 
 
-# Open the same CSV file from earlier, but instead of adding onto it, we're going to read it.
+    # Open the same CSV file from earlier, but instead of adding onto it, we're going to read it.
     with open('history.csv', 'r') as File:
         csvreader = csv.reader(File)
         header = next(csvreader)
@@ -85,23 +88,32 @@ if current_time == '08:00':
         File.close()
 
 
-    difference = None
+    # Showcase if Cases have Risen or Dropped since Yesterday
+    yesterday_cases = 232
+    difference = daily_cases - yesterday_cases
     up_down = None
+    caseDiff = None
+    if daily_cases > yesterday_cases:
+        up_down = "🔺"
+        caseDiff = f'County Covid Cases have risen by {difference} cases since yesterday.'
+    else:
+        up_down = "🔻"
+        caseDiff = f'County Covid Cases have dropped by {difference} cases since yesterday.'
 
 
     # SMS Text Sent to Phone
     text_message = [f'.\n\nSANTA CLARA COUNTY \nCDC UPDATE AS OF \n{TodayDate}\n\n----------------------------'
-                    f'\n\nRISK LEVEL: \n{riskLevel} \n\n{riskDesc}\n\n----------------------------'
-                    f'\n\nCASE RATE: \n{daily_cases} \n\n----------------------------'
+                    f'\n\nRISK LEVEL: \n{riskLevel}\n\n{riskDesc}\n\n----------------------------'
+                    f'\n\nCASE RATE: \n{daily_cases}{up_down}\n\n{caseDiff}\n\n----------------------------'
                     f'\n\nUNVACCINATED: \n{unvaccinated} \n\nFULLY VACCINATED: \n{vaccinated} \n\nBOOSTER SHOT: \n{booster_shot}\n\n----------------------------'
                     f'\n\n{maskMandate}']
 
 
-    # Send Covid Tracker SMS to Phone at 8 am Everyday
+    # Send Covid Tracker SMS
     message = client.messages.create(
         body= text_message,
         from_= '+19035322609',
-        to= "MY PHONE NUMBER"
+        to= "MY NUMBER"
     )
 
 
