@@ -1,22 +1,15 @@
+from datetime import datetime
 import requests
 import csv
 from twilio.rest import Client
-
-# NUMBER 2:
-# As a user, I want to know if things are getting better or worse.
-
-# NUMBER 3:
-# As a user, I want to know what the risk level means (what is medium? What do I need to do or be aware of?)
-
-# NUMBER 4:
-# As a user, I want to know how many county is doing compared to others (Or just list counties in the high risk)
-
+import pandas as pd
 
 
 # Twilio Authentication
 ACCOUNT_SID = 'AC911f113cfcd849f9d099a5136a2d83eb'
 AUTH_TOKEN = '433716f7777cfd1f48ba62e144530d05'
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
+
 
 # Covid Database API
 county_request = requests.get('https://api.covidactnow.org/v2/county/06085.json?apiKey=c8275ae6f8074670ab819ba7937aa71a')
@@ -29,7 +22,7 @@ vaccinated = "{:.0%}".format(county_data['metrics']['vaccinationsCompletedRatio'
 booster_shot = "{:.0%}".format(county_data['metrics']['vaccinationsAdditionalDoseRatio'])
 unvaccinated_population = county_data['population'] - county_data['actuals']['vaccinationsCompleted']
 unvaccinated = "{:.0%}".format(unvaccinated_population / county_data['population'])
-lastUpdatedDate = county_data['lastUpdatedDate']
+TodayDate = county_data['lastUpdatedDate']
 
 
 # Determine Risk Level of County
@@ -64,21 +57,35 @@ else:
 # CSV file that Contains Past Dates and their Data to Compare against Most Recent.
 with open('history.csv', 'a') as File:
     writer = csv.writer(File)
-    writer.writerow([lastUpdatedDate, daily_cases])
+    writer.writerow([TodayDate, daily_cases])
+    File.close()
+
+
+# Open the same CSV file from earlier, but instead of adding onto it, we're going to read it.
+with open('history.csv', 'r') as File:
+    csvreader = csv.reader(File)
+    header = next(csvreader)
+    rows = []
+    for row in csvreader:
+        rows.append(row)
+    print(rows)
     File.close()
 
 
 # SMS Text Sent to Phone
-text_message = [f'.\n\nSANTA CLARA COUNTY \nCDC UPDATE AS OF \n{lastUpdatedDate}\n\n----------------------------'
+text_message = [f'.\n\nSANTA CLARA COUNTY \nCDC UPDATE AS OF \n{TodayDate}\n\n----------------------------'
                 f'\n\nRISK LEVEL: \n{riskLevel} \n\n{riskDesc}\n\n----------------------------'
                 f'\n\nCASE RATE: \n{daily_cases} \n\n----------------------------'
                 f'\n\nUNVACCINATED: \n{unvaccinated} \n\nFULLY VACCINATED: \n{vaccinated} \n\nBOOSTER SHOT: \n{booster_shot}\n\n----------------------------'
                 f'\n\n{maskMandate}']
 
 
-# Send Covid Tracker to Phone
-message = client.messages.create(
-    body= text_message,
-    from_= '+19035322609',
-    to= "MY NUMBER"
-)
+# Send Covid Tracker SMS to Phone at 8 am Everyday
+now = datetime.now()
+current_time = now.strftime("%H:%M")
+if current_time == '08:00':
+    message = client.messages.create(
+        body= text_message,
+        from_= '+19035322609',
+        to= "+MY PHONE NUMBER"
+    )
