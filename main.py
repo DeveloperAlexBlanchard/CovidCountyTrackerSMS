@@ -5,25 +5,26 @@ from twilio.rest import Client
 import pandas as pd
 
 
-# NUMBER 1:
-# As a user, I want to know how many county is doing compared to others (Or just list counties in the high risk)
-
-
 # Twilio Authentication
 ACCOUNT_SID = 'AC911f113cfcd849f9d099a5136a2d83eb'
-AUTH_TOKEN = 'AUTH_TOKEN'
+AUTH_TOKEN = 'ffae61ef343c66b3f79dd245b930beb7'
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 
 # Every day at 8:00 AM, Send SMS Message to Phone with Current Updated CDC Information
+today = datetime.today()
 now = datetime.now()
+
+
+current_date = today.strftime('%A, %B %d, %Y')
 current_time = now.strftime("%H:%M")
-print(current_time)
-if current_time == '08:00':
+test_case = True
+if test_case == True:
+# if current_time == '08:00':
 
 
     # Covid Database API
-    county_request = requests.get('https://api.covidactnow.org/v2/county/06085.json?apiKey=AUTH_TOKEN')
+    county_request = requests.get('https://api.covidactnow.org/v2/county/06085.json?apiKey=c8275ae6f8074670ab819ba7937aa71a')
     county_data = county_request.json()
 
 
@@ -39,30 +40,20 @@ if current_time == '08:00':
     # Determine Risk Level of County
     if daily_cases < 200:
         riskLevel = 'Low 🟢'
-        riskDesc = 'County Case Rates have remained at an alltime low, and masks are not mandatory. All social events such as ' \
+        riskDesc = 'Covid Case Rates have remained at an alltime low, and masks are not mandatory. All social events such as ' \
                'bars, restaurants, and other indoor social gatherings will remain open. Masking is optional, but encouraged ' \
                'to practice safety.'
     elif 200 < daily_cases < 549:
         riskLevel = 'Medium 🟡'
-        riskDesc = 'County Case Rates have become more common, but not at a dangerous level. While the mask mandate is optional, county ' \
+        riskDesc = 'Covid Case Rates have become more common, but not at a dangerous level. While the mask mandate is optional, county ' \
                'residents are encouraged to mask up when going out in public. All social events such as bars, restaurants, and other ' \
                'indoor social gatherings will remain open. However, if cases continue to rise, then these events may be shut down.'
     else:
         riskLevel = 'High 🔴'
-        riskDesc = 'County Case Rates are at an all time high, and masks are mandatory. All social events, bars, restaurants, ' \
+        riskDesc = 'Covid Case Rates are at an all time high, and masks are mandatory. All social events, bars, restaurants, ' \
                'and other indoor social gathering are to be discontinued until cases are reduced. Furthermore, all businesses ' \
                'that are do not provide governmental, or food, services are to be shutdown effective immediately. Employees are now required to work from home, ' \
                'until further notice.'
-
-
-    # Santa Clara County Mask Mandate is Based Daily Cases, if Cases Remain under 550, it will not be Enforced. However, If we Achieve 550+, then the Mask Mandate Goes Back into Effect.
-    if daily_cases >= 550:
-        maskMandate = 'Santa Clara County has exceeded 550 daily cases, and the mask mandate may be/stay enacted until' \
-                  'the number falls lower. Until then, (Company) is required to provide CDC materials (masks, hand ' \
-                  'sanitizer, and gloves) to all employees that come into the office.'
-    else:
-        maskMandate = 'Santa Clara County has remained under 550 daily cases, and the mask mandate is currently not in effect until ' \
-                  'the numbers start to grow. At this time, masks are not required while indoors or in large crowds.'
 
 
     # CSV file that Contains Past Dates and their Data to Compare against Most Recent.
@@ -90,27 +81,27 @@ if current_time == '08:00':
     caseDiff = None
     if daily_cases > yesterday_cases:
         up_down = '🔺'
-        caseDiff = f'County Covid Cases have risen by {difference} cases since yesterday.'
+        caseDiff = f'(+{difference} from yesterday)'
     elif daily_cases < yesterday_cases:
         up_down = '🔻'
-        caseDiff = f'County Covid Cases have dropped by {difference} cases since yesterday.'
+        caseDiff = f'(-{difference} from yesterday)'
     else:
         up_down = ''
         caseDiff = f'County Covid Cases have remained at the same number since yesterday.'
 
-    # SMS Text Sent to Phone
-    text_message = [f'.\n\nSANTA CLARA COUNTY \nCDC UPDATE AS OF \n{TodayDate}\n\n----------------------------'
-                    f'\n\nRISK LEVEL: \n{riskLevel}\n\n{riskDesc}\n\n----------------------------'
-                    f'\n\nCASE RATE: \n{daily_cases}{up_down}\n\n{caseDiff}\n\n----------------------------'
-                    f'\n\nUNVACCINATED: \n{unvaccinated} \n\nFULLY VACCINATED: \n{vaccinated} \n\nBOOSTER SHOT: \n{booster_shot}\n\n----------------------------'
-                    f'\n\n{maskMandate}']
+
+    # SMS Text Format
+    text_message = [f'.\n\nSanta Clara County \nCOVID Update \n{current_date}\n\n----------------------------'
+                    f'\n\nRisk Level: \n\n{riskLevel}\n\nActive Cases: \n\n{daily_cases}{up_down} {caseDiff}\n\n----------------------------'
+                    f'\n\nCounty Statistics: \n\nUnvaccinated: {unvaccinated} \nFully Vaccinated: {vaccinated} \nBooster Shot: {booster_shot}\n\n----------------------------'
+                    f'\n\nCounty Message to Residents: \n\n{riskDesc}']
 
 
     # Send Covid Tracker SMS
     message = client.messages.create(
         body= text_message,
         from_= '+19035322609',
-        to= "MY PHONE NUMBER"
+        to= "MY NUMBER"
     )
 
 
