@@ -6,16 +6,12 @@ import pandas as pd
 
 
 # NUMBER 1:
-# As a user, I want to know if things are getting better or worse.
-
-
-# NUMBER 2:
 # As a user, I want to know how many county is doing compared to others (Or just list counties in the high risk)
 
 
 # Twilio Authentication
 ACCOUNT_SID = 'AC911f113cfcd849f9d099a5136a2d83eb'
-AUTH_TOKEN = '433716f7777cfd1f48ba62e144530d05'
+AUTH_TOKEN = 'AUTH_TOKEN'
 client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 
@@ -23,12 +19,11 @@ client = Client(ACCOUNT_SID, AUTH_TOKEN)
 now = datetime.now()
 current_time = now.strftime("%H:%M")
 print(current_time)
-if current_time == '16:21':
-# if current_time == '08:00':
+if current_time == '08:00':
 
 
     # Covid Database API
-    county_request = requests.get('https://api.covidactnow.org/v2/county/06085.json?apiKey=c8275ae6f8074670ab819ba7937aa71a')
+    county_request = requests.get('https://api.covidactnow.org/v2/county/06085.json?apiKey=AUTH_TOKEN')
     county_data = county_request.json()
 
 
@@ -90,16 +85,18 @@ if current_time == '16:21':
 
     # Showcase if Cases have Risen or Dropped since Yesterday
     yesterday_cases = 232
-    difference = daily_cases - yesterday_cases
+    difference = abs(daily_cases - yesterday_cases)
     up_down = None
     caseDiff = None
     if daily_cases > yesterday_cases:
-        up_down = "🔺"
+        up_down = '🔺'
         caseDiff = f'County Covid Cases have risen by {difference} cases since yesterday.'
-    else:
-        up_down = "🔻"
+    elif daily_cases < yesterday_cases:
+        up_down = '🔻'
         caseDiff = f'County Covid Cases have dropped by {difference} cases since yesterday.'
-
+    else:
+        up_down = ''
+        caseDiff = f'County Covid Cases have remained at the same number since yesterday.'
 
     # SMS Text Sent to Phone
     text_message = [f'.\n\nSANTA CLARA COUNTY \nCDC UPDATE AS OF \n{TodayDate}\n\n----------------------------'
@@ -113,7 +110,7 @@ if current_time == '16:21':
     message = client.messages.create(
         body= text_message,
         from_= '+19035322609',
-        to= "MY NUMBER"
+        to= "MY PHONE NUMBER"
     )
 
 
